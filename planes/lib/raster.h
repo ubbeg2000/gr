@@ -19,6 +19,8 @@ typedef struct coordinate_t
 
 canvas_t* new_canvas(uint32_t width, uint32_t height, double depth);
 
+void set_canvas_depth(canvas_t *canvas, double depth);
+
 coordinate_t* point_orthogonal_projection(canvas_t *canvas, point_t *p);
 
 coordinate_t* point_perspective_projection(canvas_t *canvas, point_t *p, double z_value);

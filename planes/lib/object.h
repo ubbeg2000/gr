@@ -31,11 +31,21 @@ object_t* new_object(int surfaces_len, ...);
 
 surface_t* new_surface(color_t color, vector_t *normal, int points_len, ...);
 
+surface_t* copy_surface(surface_t *s);
+
 point_t* new_point(double x, double y, double z);
 
 vector_t* new_vector(double x, double y, double z);
 
 vector_t* vector_cross_product(vector_t *a, vector_t *b);
+
+double vector_dot_product(vector_t *a, vector_t *b);
+
+double vector_magnitude(vector_t *a);
+
+void add_surface_to_object(object_t *obj, surface_t *s);
+
+void add_point_to_surface(surface_t *s, point_t *p);
 
 void print_object(object_t *object);
 

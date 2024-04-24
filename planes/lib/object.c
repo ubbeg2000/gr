@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <math.h>
 
 #include "object.h"
 
@@ -52,6 +53,27 @@ surface_t* new_surface(color_t color, vector_t *normal, int points_len, ...)
     return ret;
 }
 
+surface_t* copy_surface(surface_t *s)
+{
+    surface_t *ret = calloc(1, sizeof(surface_t));
+
+    ret->color = s->color;
+    if (ret->normal != NULL) {
+    ret->normal = new_vector(s->normal->x, s->normal->y, s->normal->z);
+    }
+
+    for (int i = 0; i < s->points_len; i++)
+    {
+        add_point_to_surface(ret, new_point(
+            s->points[i]->x,
+            s->points[i]->y,
+            s->points[i]->z
+        ));
+    }
+
+    return ret;
+}
+
 point_t* new_point(double x, double y, double z) 
 {
     point_t *ret = calloc(1, sizeof(point_t));
@@ -64,9 +86,10 @@ point_t* new_point(double x, double y, double z)
 vector_t* new_vector(double x, double y, double z)
 {
     vector_t *ret = calloc(1, sizeof(vector_t));
-    ret->x = x;
-    ret->y = y;
-    ret->z = z;
+    double mag = sqrt(powf(x, 2) + powf(y, 2) + powf(z, 2));
+    ret->x = x / mag;
+    ret->y = y / mag;
+    ret->z = z / mag;
     return ret;
 }
 
@@ -78,6 +101,38 @@ vector_t* vector_cross_product(vector_t *a, vector_t *b)
     ret->y = a->z * b->x - a->x * b->z;
     ret->z = a->x * b->y - a->y * b->x;
     return ret;
+}
+
+double vector_dot_product(vector_t *a, vector_t *b)
+{
+    return a->x * b->x + a->y + b->y + a->z + b->z;
+}
+
+double vector_magnitude(vector_t *a)
+{
+    return sqrt(pow(a->x, 2) + pow(a->y, 2) + pow(a->z, 2));
+}
+
+void add_surface_to_object(object_t *obj, surface_t *s)
+{
+    obj->surfaces_len = obj->surfaces_len + 1;
+    if (obj->surfaces == NULL) {
+        obj->surfaces = calloc(1, sizeof(surface_t));
+    } else {
+        obj->surfaces = realloc(obj->surfaces, obj->surfaces_len * sizeof(surface_t));
+    }
+    obj->surfaces[obj->surfaces_len - 1] = s;
+}
+
+void add_point_to_surface(surface_t *s, point_t *p)
+{
+    s->points_len = s->points_len + 1;
+    if (s->points == NULL) {
+        s->points = calloc(1, sizeof(point_t));
+    } else {
+        s->points = realloc(s->points, s->points_len * sizeof(point_t));
+    }
+    s->points[s->points_len - 1] = p;
 }
 
 void print_object(object_t* object)

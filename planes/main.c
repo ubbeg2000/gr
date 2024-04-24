@@ -1,23 +1,58 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <math.h>
 
-#define CANVAS_HEIGHT 100
-#define CANVAS_WIDTH 100
+#define CANVAS_HEIGHT 70
+#define CANVAS_WIDTH 200
 
 #include "lib/color.h"
 #include "lib/object.h"
 #include "lib/raster.h"
 #include "lib/transform.h"
 
+object_t *new_torus(double r_in, double r_out, double z)
+{
+    object_t *ret = calloc(1, sizeof(object_t));
+
+    double radius = (r_out - r_in) / 2;
+    point_t center = {.x = 0, .y = r_in + radius, .z = z};
+
+    int degree_increment = 1;
+    surface_t* initial_surfaces[360 / degree_increment];
+
+    for (int i = 0; i < 360 / degree_increment; i++)
+    {
+        double rad = i * degree_increment * M_PI / 180;
+        initial_surfaces[i] = new_surface(
+            WHITE, new_vector(0, center.y + sin(rad), radius * cos(rad)), 1, 
+            new_point(0, center.y + sin(rad), radius * cos(rad))
+        );
+    }
+
+    for (int i = 0; i < 360 / degree_increment; i++)
+    {
+        for (int j = 0; j < 360 / degree_increment; j++)
+        {
+            surface_t *ns = copy_surface(initial_surfaces[j]);
+            rotate_surface_z(ns, i * degree_increment);
+            add_surface_to_object(ret, ns);
+        }
+    }
+
+    return ret;
+}
+
 
 int main()
 {
-    object_t *cube = new_object(2,
+    double canvas_depth = -30;
+
+    object_t *tri = new_object(1,
         new_surface(WHITE, new_vector(1, 1, 1), 3,
-            new_point(0, -20, 10),
-            new_point(0, 20, 10),
-            new_point(20, -20, 10)
+            new_point(0, -100, 70),
+            new_point(0, 100, 70),
+            new_point(100, -100, 70)
         ),
         new_surface(0x000010FF, new_vector(6, 6, 6), 3,
             new_point(0, 0, 9),
@@ -25,25 +60,66 @@ int main()
             new_point(8, 0, 9)
         )
     );
-    // print_object(cube);
-    canvas_t *canvas = new_canvas(CANVAS_WIDTH, CANVAS_HEIGHT, -45);
+
+    object_t *torus = new_torus(4, 10, 10);
+    canvas_t *canvas = new_canvas(CANVAS_WIDTH, CANVAS_HEIGHT, canvas_depth);
+    useconds_t animation_delay = 40000;
 
     int angle = 10;
-    int angle_accum = 0;
     while (1)
     {
-        rotate_x(cube, angle);
+        for (int i = 0; i < 10; i++) 
+        {
+            set_canvas_depth(canvas, canvas_depth-i*0.5);
 
-        clear_canvas(canvas);
-        rasterize_surfaces(canvas, cube, -18);
+            clear_canvas(canvas);
+            rasterize_points(canvas, torus, -20);
 
-        system("clear"); 
-        print_canvas(canvas, ASCII_DARK_BG);
+            system("clear"); 
+            print_canvas(canvas, ASCII_DARK_BG);
 
-        angle_accum += 1;
-        printf("%d\n", angle_accum % 360);
+            usleep(animation_delay);
+        }
 
-        usleep(50000);
+        for (int i = 10; i >= 0; i--) 
+        {
+            set_canvas_depth(canvas, canvas_depth-i*0.5);
+
+            clear_canvas(canvas);
+            rasterize_points(canvas, torus, -20);
+
+            system("clear"); 
+            print_canvas(canvas, ASCII_DARK_BG);
+
+            usleep(animation_delay);
+        }
+
+        for (int i = 0; i < 18 + 36; i++) 
+        {
+            rotate_x(torus, angle);
+            rotate_y(torus, angle);
+
+            clear_canvas(canvas);
+            rasterize_points(canvas, torus, -20);
+
+            system("clear"); 
+            print_canvas(canvas, ASCII_DARK_BG);
+
+            usleep(animation_delay);
+        }
+
+        for (int i = 0; i < 18 + 36; i++) 
+        {
+            rotate_y(torus, angle);
+
+            clear_canvas(canvas);
+            rasterize_points(canvas, torus, -20);
+
+            system("clear"); 
+            print_canvas(canvas, ASCII_DARK_BG);
+
+            usleep(animation_delay);
+        }
     }
     
     return 0;

@@ -20,6 +20,11 @@ canvas_t* new_canvas(uint32_t width, uint32_t height, double depth)
     return ret;
 }
 
+void set_canvas_depth(canvas_t *canvas, double depth)
+{
+    canvas->depth = depth;
+}
+
 int is_coordinate_outside_bounds(coordinate_t *coord, uint32_t x_bound, uint32_t y_bound)
 {
     return coord->x < 0 || coord->x >= x_bound || coord->y < 0 || coord->y >= y_bound;
@@ -53,9 +58,11 @@ coordinate_t* point_perspective_projection(canvas_t *canvas, point_t *p, double 
 
 coordinate_t* normalize_coordinate(canvas_t *canvas, coordinate_t *coord)
 {
+    if (coord == NULL) return NULL;
+
     coordinate_t *ret = calloc(1, sizeof(coordinate_t));
-    ret->x = coord->x + canvas->width / 2;
-    ret->y = coord->y + canvas->height / 2;
+    ret->x = coord->x + MIN(canvas->width, canvas->height) / 2;
+    ret->y = coord->y + MIN(canvas->width, canvas->height) / 2;
     if (is_coordinate_outside_bounds(ret, canvas->width, canvas->height)) 
     {
         free(ret);
@@ -192,6 +199,7 @@ void rasterize_surfaces(canvas_t *canvas, object_t *object, double z_value)
 
 void rasterize_points(canvas_t *canvas, object_t *object, double z_value)
 {
+    vector_t *light = new_vector(1, -1, 1);
     surface_t *surface;
     double *z_buffer;
 
@@ -205,6 +213,7 @@ void rasterize_points(canvas_t *canvas, object_t *object, double z_value)
         {
             coordinate_t *c = point_perspective_projection(canvas, surface->points[j], z_value);
             coordinate_t *norm_c = normalize_coordinate(canvas, c);
+            if (norm_c == NULL) continue;
 
             if (z_buffer[norm_c->y * canvas->height + norm_c->x] < surface->points[j]->z) 
             {
@@ -212,14 +221,26 @@ void rasterize_points(canvas_t *canvas, object_t *object, double z_value)
                 free(norm_c);
                 continue;
             }
+
+            double light_value = ((vector_dot_product(surface->points[j], light) / (
+                vector_magnitude(surface->points[j]) * vector_magnitude(light)
+            )) + 2) / 2;
             
             z_buffer[norm_c->y * canvas->height + norm_c->x] = surface->points[j]->z;
-            set_canvas_value(canvas, c, surface->color);
+            // set_canvas_value(canvas, c, surface->color);
+            uint32_t o = (uint32_t)(0xFF * light_value);
+            color_t distc = 0x000000FF | (o << 8) | (o << 16) | (o << 24);
+
+            set_canvas_value(canvas, c, distc);
+            // printf("%16x %c\n", distc, color_to_ascii(ASCII_DARK_BG, distc));
 
             free(c);
             free(norm_c);
         }   
     }
+
+    free(z_buffer);
+    free(light);
 }
 
 void clear_canvas(canvas_t *canvas)
