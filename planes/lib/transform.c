@@ -53,7 +53,8 @@ void rotate_y(object_t *obj, double deg)
 
         double x, z;
         if (s->normal != NULL) {
-            x = s->normal->y, z = s->normal->z;
+            x = s->normal->y;
+            z = s->normal->z;
             
             s->normal->x = x * cosrad + z * sinrad;
             s->normal->y = s->normal->y;
@@ -108,6 +109,28 @@ void rotate_z(object_t *obj, double deg)
     }
 }
 
+void rotate(object_t *obj, double deg_x, double deg_y, double deg_z)
+{
+    rotate_x(obj, deg_x);
+    rotate_y(obj, deg_y);
+    rotate_z(obj, deg_z);
+}
+
+void translate(object_t *obj, double x, double y, double z)
+{
+    surface_t *s;
+    for (int i = 0; i < obj->surfaces_len; i++)
+    {
+        s = obj->surfaces[i];
+        for (int j = 0; j < s->points_len; j++)
+        {
+            s->points[j]->x += x;
+            s->points[j]->y += y;
+            s->points[j]->z += z;
+        }
+    }
+}
+
 void rotate_surface_x(surface_t *s, double deg)
 {
     double rad = deg / 180 * M_PI;
@@ -144,7 +167,7 @@ void rotate_surface_y(surface_t *s, double deg)
     double x, z;
 
     if (s->normal != NULL) {
-        x = s->normal->y; 
+        x = s->normal->x; 
         z = s->normal->z;
         
         s->normal->x = x * cosrad + z * sinrad;
@@ -171,7 +194,7 @@ void rotate_surface_z(surface_t *s, double deg)
     double sinrad = sin(rad);
 
     double x, y;
-    
+
     if (s->normal != NULL) {
         x = s->normal->x;
         y = s->normal->y;

@@ -98,7 +98,6 @@ void print_canvas(char canvas[CSIZE][CSIZE]) {
         }
     }
     buffer[CSIZE * CSIZE + CSIZE] = '\0';
-    printf("%s\n", buffer);
 }
 
 int main()

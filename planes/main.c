@@ -18,15 +18,15 @@ object_t *new_torus(double r_in, double r_out, double z)
     double radius = (r_out - r_in) / 2;
     point_t center = {.x = 0, .y = r_in + radius, .z = z};
 
-    int degree_increment = 1;
+    int degree_increment = 20;
     surface_t* initial_surfaces[360 / degree_increment];
 
     for (int i = 0; i < 360 / degree_increment; i++)
     {
         double rad = i * degree_increment * M_PI / 180;
         initial_surfaces[i] = new_surface(
-            WHITE, new_vector(0, center.y + sin(rad), radius * cos(rad)), 1, 
-            new_point(0, center.y + sin(rad), radius * cos(rad))
+            WHITE, new_vector(0, sin(rad), cos(rad)), 1, 
+            new_point(0, center.y + radius * sin(rad), radius * cos(rad))
         );
     }
 
@@ -61,43 +61,68 @@ int main()
         )
     );
 
-    object_t *torus = new_torus(4, 10, 10);
+    object_t *torus = new_torus(3, 7, 25);
     canvas_t *canvas = new_canvas(CANVAS_WIDTH, CANVAS_HEIGHT, canvas_depth);
     useconds_t animation_delay = 40000;
 
     int angle = 10;
     while (1)
     {
-        for (int i = 0; i < 10; i++) 
-        {
-            set_canvas_depth(canvas, canvas_depth-i*0.5);
+        // for (int i = 0; i < 10; i++) 
+        // {
+        //     translate(torus, 0, -0.5, 0);
 
-            clear_canvas(canvas);
-            rasterize_points(canvas, torus, -20);
+        //     clear_canvas(canvas);
+        //     rasterize_points(canvas, torus, -20);
 
-            system("clear"); 
-            print_canvas(canvas, ASCII_DARK_BG);
+        //     system("clear"); 
+        //     print_canvas(canvas, ASCII_DARK_BG);
 
-            usleep(animation_delay);
-        }
+        //     usleep(animation_delay);
+        // }
 
-        for (int i = 10; i >= 0; i--) 
-        {
-            set_canvas_depth(canvas, canvas_depth-i*0.5);
+        // for (int i = 0; i <= 0; i++) 
+        // {
+        //     translate(torus, -0.5, -0.5, 0);
 
-            clear_canvas(canvas);
-            rasterize_points(canvas, torus, -20);
+        //     clear_canvas(canvas);
+        //     rasterize_points(canvas, torus, -20);
 
-            system("clear"); 
-            print_canvas(canvas, ASCII_DARK_BG);
+        //     system("clear"); 
+        //     print_canvas(canvas, ASCII_DARK_BG);
 
-            usleep(animation_delay);
-        }
+        //     usleep(animation_delay);
+        // }
+
+        // for (int i = 0; i < 10; i++) 
+        // {
+        //     set_canvas_depth(canvas, canvas_depth-i*0.5);
+
+        //     clear_canvas(canvas);
+        //     rasterize_points(canvas, torus, -20);
+
+        //     system("clear"); 
+        //     print_canvas(canvas, ASCII_DARK_BG);
+
+        //     usleep(animation_delay);
+        // }
+
+        // for (int i = 10; i >= 0; i--) 
+        // {
+        //     set_canvas_depth(canvas, canvas_depth-i*0.5);
+
+        //     clear_canvas(canvas);
+        //     rasterize_points(canvas, torus, -20);
+
+        //     system("clear"); 
+        //     print_canvas(canvas, ASCII_DARK_BG);
+
+        //     usleep(animation_delay);
+        // }
 
         for (int i = 0; i < 18 + 36; i++) 
         {
-            rotate_x(torus, angle);
-            rotate_y(torus, angle);
+            rotate(torus, angle, angle, angle);
 
             clear_canvas(canvas);
             rasterize_points(canvas, torus, -20);
@@ -108,18 +133,31 @@ int main()
             usleep(animation_delay);
         }
 
-        for (int i = 0; i < 18 + 36; i++) 
-        {
-            rotate_y(torus, angle);
+        // for (int i = 0; i < 18 + 36; i++) 
+        // {
+        //     rotate_y(torus, angle);
 
-            clear_canvas(canvas);
-            rasterize_points(canvas, torus, -20);
+        //     clear_canvas(canvas);
+        //     rasterize_points(canvas, torus, -20);
 
-            system("clear"); 
-            print_canvas(canvas, ASCII_DARK_BG);
+        //     system("clear"); 
+        //     print_canvas(canvas, ASCII_DARK_BG);
 
-            usleep(animation_delay);
-        }
+        //     usleep(animation_delay);
+        // }
+
+        // for (int i = 0; i < 18 + 36; i++) 
+        // {
+        //     rotate_y(torus, angle);
+
+        //     clear_canvas(canvas);
+        //     rasterize_points(canvas, torus, -20);
+
+        //     system("clear"); 
+        //     print_canvas(canvas, ASCII_DARK_BG);
+
+        //     usleep(animation_delay);
+        // }
     }
     
     return 0;

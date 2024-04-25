@@ -58,8 +58,9 @@ surface_t* copy_surface(surface_t *s)
     surface_t *ret = calloc(1, sizeof(surface_t));
 
     ret->color = s->color;
-    if (ret->normal != NULL) {
-    ret->normal = new_vector(s->normal->x, s->normal->y, s->normal->z);
+    if (s->normal != NULL) 
+    {
+        ret->normal = new_vector(s->normal->x, s->normal->y, s->normal->z);
     }
 
     for (int i = 0; i < s->points_len; i++)
@@ -105,7 +106,7 @@ vector_t* vector_cross_product(vector_t *a, vector_t *b)
 
 double vector_dot_product(vector_t *a, vector_t *b)
 {
-    return a->x * b->x + a->y + b->y + a->z + b->z;
+    return a->x * b->x + a->y * b->y + a->z * b->z;
 }
 
 double vector_magnitude(vector_t *a)

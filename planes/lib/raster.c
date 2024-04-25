@@ -199,7 +199,7 @@ void rasterize_surfaces(canvas_t *canvas, object_t *object, double z_value)
 
 void rasterize_points(canvas_t *canvas, object_t *object, double z_value)
 {
-    vector_t *light = new_vector(1, -1, 1);
+    vector_t *light = new_vector(-1, 1, 1);
     surface_t *surface;
     double *z_buffer;
 
@@ -222,13 +222,13 @@ void rasterize_points(canvas_t *canvas, object_t *object, double z_value)
                 continue;
             }
 
-            double light_value = ((vector_dot_product(surface->points[j], light) / (
-                vector_magnitude(surface->points[j]) * vector_magnitude(light)
-            )) + 2) / 2;
+            double light_value = (127 * acos(vector_dot_product(surface->normal, light) / (
+                vector_magnitude(surface->normal) * vector_magnitude(light)
+            )) / M_1_PI) + 127;
             
             z_buffer[norm_c->y * canvas->height + norm_c->x] = surface->points[j]->z;
             // set_canvas_value(canvas, c, surface->color);
-            uint32_t o = (uint32_t)(0xFF * light_value);
+            uint32_t o = (uint32_t)(light_value);
             color_t distc = 0x000000FF | (o << 8) | (o << 16) | (o << 24);
 
             set_canvas_value(canvas, c, distc);
